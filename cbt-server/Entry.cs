@@ -57,9 +57,7 @@ namespace cbt_server
             }
             catch (Exception e)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine(e.Message);
-                Console.ResetColor();
+                Console.WriteLine("0x345: {0}", e.Message);
                 
                 readyConnection.Close();
                 readyConnection.Dispose();
@@ -77,9 +75,7 @@ namespace cbt_server
             catch (Exception e)
             {
                 status = false;
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine(e.Message);
-                Console.ResetColor();
+                Console.WriteLine("0x445: {0}", e.Message);
             }
             finally
             {

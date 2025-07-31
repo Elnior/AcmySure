@@ -19,6 +19,9 @@ namespace cbt_server.HttpIO
 			this.entry = entry;
 			this.tries = 0;
 		}
+		
+		public static bool isIgnorable (string reference) => reference.IndexOf(".git/", 0) == 1;
+
 		public void dispatch (Socket readyC)
 		{
 			bool isServerError = false;
@@ -34,7 +37,7 @@ namespace cbt_server.HttpIO
 					case "get":
 						if (path == "" || path == "/")
 						{
-							address = AcmySureServer.baseDir + @"\UI\home.html";
+							address = AcmySureServer.baseDir + @"\CBT\index.html";
 							if (File.Exists(address))
 							{
 								if (this.tries < 8)
@@ -87,72 +90,72 @@ namespace cbt_server.HttpIO
 							else
 							{
 								isServerError = true;
-								throw new Exception("The Main Source Server is not exist. Check the ../UI directory to analyze and fix it");
+								throw new Exception("The Main Source of Server is not exist. Check the ../CBT directory to analyze and fix it");
 							}
 						}
-						else if (path == "/access" || path == "/access/")
-						{
-							address = AcmySureServer.baseDir + @"\UI\accessToAccount.html";
-							if (File.Exists(address))
-							{
-								if (this.tries < 8)
-								{
-									FileStream homeStream = File.OpenRead(address);
-									headers = Encoding.UTF8.GetBytes (
-										this.entry.htWithVersion + " 307 Temporary Redirect\r\n" +
-										"Connection: close\r\n" +
-										"Content-Length: " + homeStream.Length + "\r\n" +
-										"Content-Language: en-US\r\n" +
-										"Date: " + time + "\r\n" +
-										"Content-Type: text/html\r\n" +
-										"Server: NElniorS\r\n" +
-										"\r\n"
-									);
+						// else if (path == "/access" || path == "/access/")
+						// {
+						// 	address = AcmySureServer.baseDir + @"\CBT\accessToAccount.html";
+						// 	if (File.Exists(address))
+						// 	{
+						// 		if (this.tries < 8)
+						// 		{
+						// 			FileStream homeStream = File.OpenRead(address);
+						// 			headers = Encoding.UTF8.GetBytes (
+						// 				this.entry.htWithVersion + " 307 Temporary Redirect\r\n" +
+						// 				"Connection: close\r\n" +
+						// 				"Content-Length: " + homeStream.Length + "\r\n" +
+						// 				"Content-Language: en-US\r\n" +
+						// 				"Date: " + time + "\r\n" +
+						// 				"Content-Type: text/html\r\n" +
+						// 				"Server: NElniorS\r\n" +
+						// 				"\r\n"
+						// 			);
 									
-									readyC.Send(headers);
+						// 			readyC.Send(headers);
 									
-									data = new byte[1024]; // 1Kb
-									while (homeStream.Read(data, 0, data.Length) != 0)
-										readyC.Send(data);
+						// 			data = new byte[1024]; // 1Kb
+						// 			while (homeStream.Read(data, 0, data.Length) != 0)
+						// 				readyC.Send(data);
 									
-									// cleaning
-									homeStream.Close();
-									homeStream.Dispose();
-									readyC.Close();
-									readyC.Dispose();
-								}
-								else
-								{
-									this.tries = 0;
-									data = Encoding.UTF8.GetBytes("The source data is not free yet!");
-									headers = Encoding.UTF8.GetBytes (
-										this.entry.htWithVersion + " 504 Busy\r\n" +
-										"Content-Length: " + data.Length + "\r\n" +
-										"Connection: close\r\n" +
-										"Content-Language: en-US\r\n" +
-										"Date: " + time + "\r\n" +
-										"Conent-Type: text/txt\r\n" +
-										"Server: NElniorS\r\n" +
-										"\r\n"
-									);
-									readyC.Send(headers);
-									readyC.Send(data);
-									// cleaning
-									readyC.Close();
-									readyC.Dispose();
-								}
-							}
-							else
-							{
-								isServerError = true;
-								throw new Exception("If you want to access and you is the developer of AcmySure, check the ../UI directory to analyze and fix it");
-							}
-						}
-						else if (File.Exists(AcmySureServer.baseDir + "/UI/sources" + path))
+						// 			// cleaning
+						// 			homeStream.Close();
+						// 			homeStream.Dispose();
+						// 			readyC.Close();
+						// 			readyC.Dispose();
+						// 		}
+						// 		else
+						// 		{
+						// 			this.tries = 0;
+						// 			data = Encoding.UTF8.GetBytes("The source data is not free yet!");
+						// 			headers = Encoding.UTF8.GetBytes (
+						// 				this.entry.htWithVersion + " 504 Busy\r\n" +
+						// 				"Content-Length: " + data.Length + "\r\n" +
+						// 				"Connection: close\r\n" +
+						// 				"Content-Language: en-US\r\n" +
+						// 				"Date: " + time + "\r\n" +
+						// 				"Conent-Type: text/txt\r\n" +
+						// 				"Server: NElniorS\r\n" +
+						// 				"\r\n"
+						// 			);
+						// 			readyC.Send(headers);
+						// 			readyC.Send(data);
+						// 			// cleaning
+						// 			readyC.Close();
+						// 			readyC.Dispose();
+						// 		}
+						// 	}
+						// 	else
+						// 	{
+						// 		isServerError = true;
+						// 		throw new Exception("If you want to access and you is the developer of AcmySure, check the ../CBT directory to analyze and fix it");
+						// 	}
+						// }
+						else if (File.Exists(AcmySureServer.baseDir + "/CBT" + path) && !isIgnorable(path))
 						{
 							if (this.tries < 8)
 							{
-								FileStream dataStream = File.OpenRead(AcmySureServer.baseDir + "/UI/sources" + path);
+								FileStream dataStream = File.OpenRead(AcmySureServer.baseDir + "/CBT" + path);
 								headers = Encoding.UTF8.GetBytes (
 									this.entry.htWithVersion + " 200 Ok\r\n" +
 									"Content-Length: " + dataStream.Length + "\r\n" +
@@ -198,7 +201,7 @@ namespace cbt_server.HttpIO
 						}
 						else
 						{
-							string loc = AcmySureServer.baseDir + @"\UI\notAvailableInterface.html";
+							string loc = AcmySureServer.baseDir + @"\CBT\http-404-status.html";
 							if (File.Exists(loc))
 							{
 								if (this.tries < 8)
@@ -249,7 +252,7 @@ namespace cbt_server.HttpIO
 							else
 							{
 								isServerError = true;
-								throw new Exception("The source of server is not exist. Check the ../UI directory to analyze and fix it");
+								throw new Exception("The source of server is not exist. Check the ../CBT directory to analyze and fix it");
 							}
 						}
 					break;
@@ -311,9 +314,7 @@ namespace cbt_server.HttpIO
 					readyC.Close();
 					readyC.Dispose();
 				}
-				Console.ForegroundColor = ConsoleColor.Red;
-				Console.WriteLine("0x001: {0}", e);
-				Console.ResetColor();
+				Console.WriteLine("0x001: {0}", e.Message);
 			}
 		}
 	}
